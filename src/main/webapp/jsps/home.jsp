@@ -48,7 +48,7 @@
 <header>
     <h1>🚀 Welcome to KK FUNDA DEVOPS SRE Portal 🚀</h1>
     <h2>Devops Engineer</h2>
-    <h2>Arief Mohammad SRE Developer Interview scheduled by DEC 2025</h2>
+    <h2>Arief Mohammad SRE Developer Interview scheduled by DEC 2025 or Jan 2026</h2>
     <h3>Training | Development | Consulting</h3>
 </header>
 
