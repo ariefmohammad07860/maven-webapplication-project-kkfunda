@@ -1,3 +1,10 @@
+properties([
+    pipelineTriggers([
+        pollSCM('* * * * *'),   // Check for code changes every 1 minute
+       // cron('* * * * *'),      // Force build every 1 minute (regardless of code changes)
+       // githubPush()            // Build immediately on GitHub push webhook
+    ])
+])
 node
 {
 
