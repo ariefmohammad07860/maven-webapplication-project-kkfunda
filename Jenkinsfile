@@ -1,10 +1,4 @@
-properties([
-    pipelineTriggers([
-    //pollSCM('* * * * *'),   // Check for code changes every 1 minute
-    // cron('* * * * *'),      // Force build every 1 minute (regardless of code changes)
-     githubPush()            // Build immediately on GitHub push webhook
-    ])
-])
+
 node
 {
 
@@ -17,7 +11,16 @@ node
    def mavenHome=tool name: "maven-3.9.6"
     try
     {
+ triggers {
+        // 🔁 Poll SCM every 1 minute (checks for code changes)
+        pollSCM('* * * * *')
 
+        // 🕒 Build periodically every 1 minute (runs regardless of code changes)
+       // cron('* * * * *')
+
+        // 🧩 GitHub webhook trigger (immediate build on push event)
+        //githubPush()
+    }
   stage('git checkout')
   {
     notifyBuild('STARTED')
