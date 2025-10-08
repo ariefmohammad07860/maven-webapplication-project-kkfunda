@@ -4,8 +4,8 @@ node {
   properties([
     pipelineTriggers([
      // pollSCM('* * * * *')  // Polls SCM every 1 minute
-      cron('* * * * *'), 
-       //githubPush()  
+     //cron('* * * * *'), 
+      githubPush()  
     ])
   ])
 
