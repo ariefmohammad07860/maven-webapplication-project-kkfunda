@@ -31,7 +31,7 @@ node {
         sh """
             curl -u eshan:eshan \
             --upload-file /var/lib/jenkins/workspace/jio-prod-scriptedway-PL/target/maven-web-application.war \
-            "http://34.232.165.151:8080/manager/text/deploy?path=/maven-web-application&update=true"
+            "http://54.234.35.122:8080/manager/text/deploy?path=/maven-web-application&update=true"
         """
     }
 } // node closing
