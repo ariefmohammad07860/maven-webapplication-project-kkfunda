@@ -1,102 +1,72 @@
+node {
 
-node
-{
+  // 🔹 Add Poll SCM Trigger
+  properties([
+    pipelineTriggers([
+      pollSCM('* * * * *')  // Polls SCM every 1 minute
+    ])
+  ])
 
-   echo "git branch name: ${env.BRANCH_NAME}"
-   echo "build number is: ${env.BUILD_NUMBER}"
-   echo "node name is: ${env.NODE_NAME}"
+  echo "git branch name: ${env.BRANCH_NAME}"
+  echo "build number is: ${env.BUILD_NUMBER}"
+  echo "node name is: ${env.NODE_NAME}"
 
+  def mavenHome = tool name: "maven-3.9.6"
 
-   // /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven-3.9.9/bin
-   def mavenHome=tool name: "maven-3.9.6"
-    try
-    {
- triggers {
-        // 🔁 Poll SCM every 1 minute (checks for code changes)
-        pollSCM('* * * * *')
+  try {
 
-        // 🕒 Build periodically every 1 minute (runs regardless of code changes)
-       // cron('* * * * *')
-
-        // 🧩 GitHub webhook trigger (immediate build on push event)
-        //githubPush()
+    stage('Git Checkout') {
+      notifyBuild('STARTED')
+      git branch: 'development', url: 'https://github.com/ariefmohammad07860/maven-webapplication-project-kkfunda.git'
     }
-  stage('git checkout')
-  {
-    notifyBuild('STARTED')
-    git branch: 'development', url: 'https://github.com/ariefmohammad07860/maven-webapplication-project-kkfunda.git'
-  } 
 
-    stage('COMPILE')
-  {
-    sh "${mavenHome}/bin/mvn clean compile"
-  }
+    stage('Compile') {
+      sh "${mavenHome}/bin/mvn clean compile"
+    }
 
-  stage('Build')
-  {
-    sh "${mavenHome}/bin/mvn clean package"
-  }
+    stage('Build') {
+      sh "${mavenHome}/bin/mvn clean package"
+    }
 
-    stage('SQ Report')
-  {
-    sh "${mavenHome}/bin/mvn sonar:sonar"
-  }
+    stage('SonarQube Report') {
+      sh "${mavenHome}/bin/mvn sonar:sonar"
+    }
 
-      stage('Upload Artifact')
-  {
+    stage('Upload Artifact') {
+      sh "${mavenHome}/bin/mvn clean deploy"
+    }
 
-    sh "${mavenHome}/bin/mvn clean deploy"
-  }
-
-    stage('Deploy to Tomcat') 
-    {
-      
+    stage('Deploy to Tomcat') {
       sh """
-
-      curl -u eshan:eshan \
---upload-file /var/lib/jenkins/workspace/jio-prod-scriptedway-PL/target/maven-web-application.war \
-"http://54.145.20.3:8080/manager/text/deploy?path=/maven-web-application&update=true"
-          
-        """
+        curl -u arief:arief \
+        --upload-file /var/lib/jenkins/workspace/jio-dev-scriptedway-PL/target/maven-web-application.war \
+        "http://54.145.20.3:8080/manager/text/deploy?path=/maven-web-application&update=true"
+      """
     }
 
-    }  //try ending
-
-    catch (e) {
-   
-       currentBuild.result = "FAILED"
-
+  } catch (e) {
+    currentBuild.result = "FAILED"
   } finally {
-    // Success or failure, always send notifications
     notifyBuild(currentBuild.result)
   }
-  
+
 } // node ending
 
 
+// 🔹 Slack Notification Function
 def notifyBuild(String buildStatus = 'STARTED') {
-  // build status of null means successful
-  buildStatus =  buildStatus ?: 'SUCCESS'
+  buildStatus = buildStatus ?: 'SUCCESS'
 
-  // Default values
-  def colorName = 'RED'
   def colorCode = '#FF0000'
   def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
   def summary = "${subject} (${env.BUILD_URL})"
 
-  // Override default values based on build status
   if (buildStatus == 'STARTED') {
-    color = 'YELLOW'
     colorCode = '#FFFF00'
   } else if (buildStatus == 'SUCCESS') {
-    color = 'GREEN'
     colorCode = '#00FF00'
-  } else {
-    color = 'RED'
-    colorCode = '#FF0000'
   }
 
-  // Send notifications
-  slackSend (color: colorCode, message: summary, channel: '#jio-devteam')
-  // slackSend (color: colorCode, message: summary, channel: '#jio-devops')
+  slackSend(color: colorCode, message: summary, channel: '#jio-devteam')
+  //slackSend(color: colorCode, message: summary, channel: '#jio-devops')
 }
