@@ -3,9 +3,9 @@ node {
   // 🔹 Add Poll SCM Trigger
   properties([
     pipelineTriggers([
-     pollSCM('* * * * *')  // Polls SCM every 1 minute
+     //pollSCM('* * * * *')  // Polls SCM every 1 minute
      //cron('* * * * *'), 
-     //githubPush()  
+     githubPush()  
     ])
   ])
 
