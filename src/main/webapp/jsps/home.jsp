@@ -48,7 +48,7 @@
 <header>
     <h1>🚀 Welcome to KK FUNDA DEVOPS SRE Portal 🚀</h1>
     <h2>Devops Engineer</h2>
-    <h2>Arief Mohammad SRE Developer and AWS and SRE and Azure adn jenkins and sonarqube and docker and ansible</h2>
+    <h2>Arief Mohammad SRE Developer and AWS and SRE</h2>
     <h3>Training | Development | Consulting</h3>
 </header>
 
