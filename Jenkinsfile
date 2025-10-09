@@ -8,7 +8,7 @@ node {
             credentialsId: 'e91a6a9b-2b82-4be6-89f0-555a8ad4956c',
             url: 'https://github.com/ariefmohammad07860/maven-webapplication-project-kkfunda.git'
     }
-
+} // node closing
     // 🔹 Slack Notification Function
 def notifyBuild(String buildStatus = 'STARTED') {
   buildStatus = buildStatus ?: 'SUCCESS'
@@ -26,4 +26,4 @@ def notifyBuild(String buildStatus = 'STARTED') {
   slackSend(color: colorCode, message: summary, channel: '#bsnl-main')
   //slackSend(color: colorCode, message: summary, channel: '#jio-devops')
 }
-} // node closing
+
