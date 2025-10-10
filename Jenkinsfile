@@ -41,7 +41,7 @@ pipeline {
         steps {
                 sh """
             curl -u arief:arief \
-            --upload-file /var/lib/jenkins/workspace/DLPL/target/maven-web-application.war \
+            --upload-file /var/lib/jenkins/workspace/jio-declaritive-PL-prod/target/maven-web-application.war \
             "http://34.207.115.158:8080/manager/text/deploy?path=/maven-web-application&update=true"
         """
             }
