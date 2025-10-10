@@ -48,7 +48,7 @@
 <header>
     <h1>🚀 Welcome to KK FUNDA DEVOPS SRE Portal 🚀</h1>
     <h2>Devops Engineer</h2>
-    <h2>Arief Mohammad SRE Developer and AWS and SRE Approved the slack notification</h2>
+    <h2>Arief Mohammad SRE Developer and AWS New app</h2>
     <h3>Training | Development | Consulting</h3>
 </header>
 
