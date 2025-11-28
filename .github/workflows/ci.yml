@@ -18,17 +18,20 @@ jobs:
 
       - run: mvn clean package
 
-      - name: Upload WAR to Nexus
+      - name: Upload WAR to Nexus (Snapshot Repo)
         env:
           NEXUS_URL: "http://184.73.33.129:8081/repository/jio-snapshot/"
           NEXUS_USER: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          WAR=$(ls target/*.war | head -n 1)
-          echo "Uploading $WAR to Nexus..."
+          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          WAR_FILE="target/${ARTIFACT_ID}.war"
+
+          echo "Uploading ${WAR_FILE} to Nexus..."
           curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" \
-            --upload-file "$WAR" \
-            "${NEXUS_URL}maven-web-application-kkfunda/0.0.1-SNAPSHOT/maven-web-application-kkfunda-0.0.1-SNAPSHOT.war"
+            --upload-file "${WAR_FILE}" \
+            "${NEXUS_URL}${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.war"
 
       - name: Deploy WAR to Tomcat
         env:
