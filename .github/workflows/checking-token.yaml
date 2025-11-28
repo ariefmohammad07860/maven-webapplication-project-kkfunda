@@ -1,4 +1,14 @@
-- name: Check if SONAR_TOKEN is available
-  run: echo "Token length: ${#SONAR_TOKEN}"
-  env:
-    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+name: Test SonarQube Token
+
+on:
+  workflow_dispatch:   # Manual trigger
+
+jobs:
+  test-sonar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if SONAR_TOKEN is available
+        run: echo "Token length: ${#SONAR_TOKEN}"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
