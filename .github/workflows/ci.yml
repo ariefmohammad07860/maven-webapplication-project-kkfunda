@@ -1,7 +1,7 @@
 name: Simple Build and Deploy
 on:
    workflow_dispatch:
-jobs: 
+jobs:
    full:
       runs-on: ubuntu-latest
       steps:
