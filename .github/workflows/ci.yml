@@ -23,11 +23,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn verify sonar:sonar \
-            -Dsonar.login=arief \
-            -Dsonar.password=password \ 
             -Dsonar.projectKey=maven-web-application-kkfunda \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
 
       - name: Deploy WAR to Tomcat
         env:
