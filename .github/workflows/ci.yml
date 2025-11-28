@@ -20,7 +20,7 @@ jobs:
 
       - name: Upload WAR to Nexus
         env:
-          NEXUS_URL: ${{ secrets.NEXUS_URL }}
+          NEXUS_URL: "http://184.73.33.129:8081/repository/jio-snapshot/"
           NEXUS_USER: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASSWORD }}
         run: |
