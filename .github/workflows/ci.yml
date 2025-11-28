@@ -27,6 +27,18 @@ jobs:
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
+      - name: Upload WAR to Nexus
+        env:
+          NEXUS_URL: ${{ secrets.NEXUS_URL }}
+          NEXUS_USER: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASS: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          WAR=$(ls target/*.war | head -n 1)
+          echo "Uploading $WAR to Nexus..."
+          curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" \
+            --upload-file "$WAR" \
+            "${NEXUS_URL}maven-web-application-kkfunda/0.0.1-SNAPSHOT/maven-web-application-kkfunda-0.0.1-SNAPSHOT.war"
+
       - name: Deploy WAR to Tomcat
         env:
           TOMCAT_URL: ${{ secrets.TOMCAT_URL }}
