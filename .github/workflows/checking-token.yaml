@@ -1,0 +1,4 @@
+- name: Check if SONAR_TOKEN is available
+  run: echo "Token length: ${#SONAR_TOKEN}"
+  env:
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
