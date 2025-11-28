@@ -16,8 +16,17 @@ jobs:
           java-version: 17
           cache: maven
 
-      - run: mvn clean package
+      - run: mvn clean package 
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn verify sonar:sonar \
+            -Dsonar.projectKey=maven-web-application \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
+    
       - name: Deploy WAR to Tomcat
         env:
           TOMCAT_URL: ${{ secrets.TOMCAT_URL }}
