@@ -1,7 +1,7 @@
 name: Test SonarQube Token
 
 on:
-  workflow_dispatch:   # Manual trigger
+  workflow_dispatch:
 
 jobs:
   test-sonar:
@@ -9,6 +9,6 @@ jobs:
 
     steps:
       - name: Check if SONAR_TOKEN is available
-        run: echo "Token length: ${#SONAR_TOKEN}"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: echo "Token length: ${#SONAR_TOKEN}"
