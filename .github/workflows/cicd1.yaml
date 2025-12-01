@@ -17,3 +17,5 @@ jobs:
         run: |
            sudo apt update -y
            sudo apt install maven -y
+      - name: Maven Clean package
+        run: mvn clean package
