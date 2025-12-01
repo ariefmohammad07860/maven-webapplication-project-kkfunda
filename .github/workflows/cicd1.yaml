@@ -19,16 +19,23 @@ jobs:
            sudo apt update -y
            sudo apt install maven -y
            
-      - name: Maven Clean package
+      - name: Maven Clean packag
         run: |
            mvn clean package
-      - name: Install Trivy
-        run: |
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
-          sudo dpkg -i trivy_0.67.2_Linux-64bit.deb
+   Security-check:
+      runs-on: self-hosted
+      needs: Build
+      steps:
+         - name: Install Trivy
+           run: |
+              wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
+              sudo dpkg -i trivy_0.67.2_Linux-64bit.deb
 
-      - name: Trivy FS Scan
-        run: trivy fs --format table -o fs-report.json .
-        
-      - name: SonarQube Analysis
-        run: mvn sonar:sonar
+         - name: Trivy FS Scan
+           run: trivy fs --format table -o fs-report.json .
+   SonarQube-check:
+      runs-on: self-hosted
+      needs:  Security-check
+      steps:
+         - name: SonarQube Analysis
+           run: mvn sonar:sonar
