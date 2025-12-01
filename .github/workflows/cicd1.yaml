@@ -3,7 +3,7 @@ on:
    workflow_dispatch
 jobs:
    Build:
-      runs-on: ubuntu-latest
+      runs-on: self-host
       steps:
       - uses: actions/checkout@v4
 
@@ -13,3 +13,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+      - name: Maven Install
+        run: |
+           sudo apt update -y
+           sudo apt install maven -y
