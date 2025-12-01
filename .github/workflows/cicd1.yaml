@@ -20,3 +20,10 @@ jobs:
       - name: Maven Clean package
         run: |
            mvn clean package
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.67.2_Linux-64bit.deb
+
+      - name: Trivy FS Scan
+        run: trivy fs --format table -o fs-report.json .
