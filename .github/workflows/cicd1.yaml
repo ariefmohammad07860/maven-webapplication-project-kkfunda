@@ -39,3 +39,10 @@ jobs:
       steps:
          - name: SonarQube Analysis
            run: mvn sonar:sonar
+   Docker-Push:
+      runs-on: self-hosted
+      needs: SonarQube-check
+      steps:
+         - name: Docker registry
+           run: |
+             docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
