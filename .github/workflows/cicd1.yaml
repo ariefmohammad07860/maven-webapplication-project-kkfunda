@@ -13,10 +13,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          
       - name: Maven Install
         run: |
            sudo apt update -y
            sudo apt install maven -y
+           
       - name: Maven Clean package
         run: |
            mvn clean package
@@ -27,3 +29,6 @@ jobs:
 
       - name: Trivy FS Scan
         run: trivy fs --format table -o fs-report.json .
+        
+      - name: SonarQube Analysis
+        run: mvn sonar:sonar
