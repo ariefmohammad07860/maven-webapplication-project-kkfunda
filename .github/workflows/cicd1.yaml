@@ -43,6 +43,6 @@ jobs:
       runs-on: self-hosted
       needs: SonarQube-check
       steps:
-         - name: Docker registry
-           run: |
-             docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
+       - name: Docker Build
+         run: docker build -t ${{ secrets.DOCKER_REPOSITORY }}:${{ github.sha }} .
+
