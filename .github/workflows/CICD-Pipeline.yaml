@@ -61,26 +61,38 @@ jobs:
     needs: security-check
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download WAR artifact
+  
+      - name: Download WAR artifact (to repo root)
         uses: actions/download-artifact@v4
         with:
           name: app-war
-          path: target
-
-      - name: Debug workspace
+          path: .          # put war at ./maven-web-application.war
+  
+      - name: Ensure WAR exists (fail early with details)
         run: |
           echo "PWD: $(pwd)"
-          echo "Listing repo root:"
+          echo "Repo root files:"
           ls -la
-          echo "Listing target:"
+          echo "target (if exists):"
           ls -la target || true
-          du -sh .
-
+          echo "Root war file:"
+          ls -la maven-web-application.war || true
+          echo ".dockerignore (if present):"
+          cat .dockerignore || true
+          if [ ! -f maven-web-application.war ]; then
+            echo "ERROR: WAR not found at repo root. Build context will NOT include it."
+            exit 1
+          fi
+          # move WAR into target so Dockerfile COPY target/... works
+          mkdir -p target
+          mv maven-web-application.war target/maven-web-application.war
+          echo "Moved WAR into target/:"
+          ls -la target
+  
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
-
+  
       - name: Push images to Docker Hub
         run: |
           docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
