@@ -1,10 +1,12 @@
 name: CICD-Final-Pipeline
 on:
-   workflow_dispatch:
+  workflow_dispatch:
+
 jobs:
-   Build:
-      runs-on: self-hosted
-      steps:
+
+  Build:
+    runs-on: self-hosted
+    steps:
       - uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -14,39 +16,54 @@ jobs:
           distribution: 'temurin'
           cache: maven
           
-      - name: Maven Install
+      - name: Install Maven
         run: |
-           sudo apt update -y
-           sudo apt install maven -y
-           
-      - name: Maven Clean packag
+          sudo apt update -y
+          sudo apt install maven -y
+
+      - name: Maven Clean Package
+        run: mvn clean package
+
+
+  sonarqube:
+    runs-on: self-hosted
+    needs: Build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SonarQube Analysis
+        run: mvn sonar:sonar
+
+
+  security-check:
+    runs-on: self-hosted
+    needs: sonarqube
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Trivy
         run: |
-           mvn clean package
-   sonarqube:
-       runs-on: self-hosted
-       needs: Build
-       steps:
-       #  - uses: actions/checkout@v4
-   
-       #  - name: Set up JDK 17
-       #    uses: actions/setup-java@v4
-       #     with:
-       #      java-version: '17'
-       #       distribution: 'temurin'
-       #       cache: maven
-   
-         - name: SonarQube Analysis
-           run: mvn sonar:sonar
-   security-check:
-       runs-on: self-hosted
-       needs: sonarqube
-       steps:
-         #- uses: actions/checkout@v4
-   
-         - name: Install Trivy
-           run: |
-             wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
-             sudo dpkg -i trivy_0.67.2_Linux-64bit.deb
-   
-         - name: Trivy FS Scan
-           run: trivy fs --format table -o fs-report.json .
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.67.2_Linux-64bit.deb
+
+      - name: Trivy FS Scan
+        run: trivy fs --format table -o fs-report.json .
+
+
+  docker-build:
+    runs-on: self-hosted
+    needs: security-check
+    steps:
+      - uses: actions/checkout@v4
+
+      # ✅ Add Docker Login Here
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
+
+      - name: Push Image to Docker Hub
+        run: |
+          docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
