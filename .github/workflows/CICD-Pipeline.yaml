@@ -17,37 +17,39 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Install Maven
+      - name: install maven
         run: |
           sudo apt update
-          sudo apt install -y maven
+          sudo apt install maven -y
 
       - name: Build with Maven
         run: mvn -B clean package
 
-      - name: Upload WAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-war
-          path: target/maven-web-application.war
 
 
   sonarqube:
     runs-on: self-hosted
     needs: compile
     steps:
-      - uses: actions/checkout@v4
+    #  - uses: actions/checkout@v4
+
+    #  - name: Set up JDK 17
+    #    uses: actions/setup-java@v4
+    #     with:
+    #      java-version: '17'
+    #       distribution: 'temurin'
+    #       cache: maven
 
       - name: SonarQube Analysis
         run: mvn sonar:sonar
+
 
 
   security-check:
     runs-on: self-hosted
     needs: sonarqube
     steps:
-
-      - uses: actions/checkout@v4
+      #- uses: actions/checkout@v4
 
       - name: Install Trivy
         run: |
@@ -58,30 +60,20 @@ jobs:
         run: trivy fs --format table -o fs-report.json .
 
 
+
+
+
   docker-build:
     runs-on: self-hosted
     needs: security-check
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download WAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-war
-          path: target
-
-      - name: Debug WAR
-        run: |
-          echo "PWD: $(pwd)"
-          echo "Files:"
-          ls -la
-          echo "Target folder:"
-          ls -la target
+     # - uses: actions/checkout@v4
 
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
-
-      - name: Push Docker Image
+    
+      - name: Push images to Docker Hub
         run: |
           docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
+        # docker push ${{ secrets.Docker_Repository }}:latest 
