@@ -17,19 +17,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: install maven
+      - name: Install Maven
         run: |
           sudo apt update
-          sudo apt install maven -y
+          sudo apt install -y maven
 
       - name: Build with Maven
         run: mvn -B clean package
-
-      - name: Show target dir (debug)
-        run: |
-          echo ">>> listing target:"
-          ls -la target || true
-          du -sh target || true
 
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
@@ -37,17 +31,24 @@ jobs:
           name: app-war
           path: target/maven-web-application.war
 
+
   sonarqube:
     runs-on: self-hosted
     needs: compile
     steps:
+      - uses: actions/checkout@v4
+
       - name: SonarQube Analysis
         run: mvn sonar:sonar
+
 
   security-check:
     runs-on: self-hosted
     needs: sonarqube
     steps:
+
+      - uses: actions/checkout@v4
+
       - name: Install Trivy
         run: |
           wget https://github.com/aquasecurity/trivy/releases/download/v0.67.2/trivy_0.67.2_Linux-64bit.deb
@@ -56,43 +57,31 @@ jobs:
       - name: Trivy FS Scan
         run: trivy fs --format table -o fs-report.json .
 
+
   docker-build:
     runs-on: self-hosted
     needs: security-check
     steps:
       - uses: actions/checkout@v4
-  
-      - name: Download WAR artifact (to repo root)
+
+      - name: Download WAR artifact
         uses: actions/download-artifact@v4
         with:
           name: app-war
-          path: .          # put war at ./maven-web-application.war
-  
-      - name: Ensure WAR exists (fail early with details)
+          path: target
+
+      - name: Debug WAR
         run: |
           echo "PWD: $(pwd)"
-          echo "Repo root files:"
+          echo "Files:"
           ls -la
-          echo "target (if exists):"
-          ls -la target || true
-          echo "Root war file:"
-          ls -la maven-web-application.war || true
-          echo ".dockerignore (if present):"
-          cat .dockerignore || true
-          if [ ! -f maven-web-application.war ]; then
-            echo "ERROR: WAR not found at repo root. Build context will NOT include it."
-            exit 1
-          fi
-          # move WAR into target so Dockerfile COPY target/... works
-          mkdir -p target
-          mv maven-web-application.war target/maven-web-application.war
-          echo "Moved WAR into target/:"
+          echo "Target folder:"
           ls -la target
-  
+
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
-  
-      - name: Push images to Docker Hub
+
+      - name: Push Docker Image
         run: |
           docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
