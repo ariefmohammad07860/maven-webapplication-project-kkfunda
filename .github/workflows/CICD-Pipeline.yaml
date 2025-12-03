@@ -19,11 +19,18 @@ jobs:
 
       - name: Install Maven
         run: |
-          sudo apt update
+          sudo apt update -y
           sudo apt install maven -y
 
       - name: Build with Maven
         run: mvn -B clean package
+
+      # Upload WAR file
+      - name: Upload WAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-file
+          path: target/maven-web-application.war
 
 
   sonarqube:
@@ -40,7 +47,10 @@ jobs:
           cache: maven
 
       - name: SonarQube Analysis
-        run: mvn sonar:sonar
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.host.url=http://98.93.30.124:9000 \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
 
   security-check:
@@ -56,17 +66,31 @@ jobs:
 
       - name: Trivy FS Scan
         run: trivy fs --format table -o fs-report.json .
+
+
   docker-build:
     runs-on: self-hosted
     needs: security-check
     steps:
-     # - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
+      # Download WAR generated from compile job
+      - name: Download WAR Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: war-file
+          path: target
+
+      # Login to Docker Hub
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      # Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
-    
+
+      # Push Image
       - name: Push images to Docker Hub
         run: |
           docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
-      
