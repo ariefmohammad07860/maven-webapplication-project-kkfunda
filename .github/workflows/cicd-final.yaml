@@ -22,3 +22,18 @@ jobs:
       - name: Maven Clean packag
         run: |
            mvn clean package
+   sonarqube:
+       runs-on: self-hosted
+       needs: Build
+       steps:
+       #  - uses: actions/checkout@v4
+   
+       #  - name: Set up JDK 17
+       #    uses: actions/setup-java@v4
+       #     with:
+       #      java-version: '17'
+       #       distribution: 'temurin'
+       #       cache: maven
+   
+         - name: SonarQube Analysis
+           run: mvn sonar:sonar
