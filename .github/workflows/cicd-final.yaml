@@ -24,6 +24,13 @@ jobs:
       - name: Maven Clean Package
         run: mvn clean package
 
+      # ✅ REQUIRED: Upload WAR file so docker job can download it
+      - name: Upload WAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-file
+          path: target/maven-web-application.war
+
 
   sonarqube:
     runs-on: self-hosted
@@ -56,14 +63,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ✅ Add Docker Login Here
+      # ✅ Download WAR from Build job
+      - uses: actions/download-artifact@v4
+        with:
+          name: war-file
+          path: target
+
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
-        run: |
-          docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
+        run: docker build -t ${{ secrets.Docker_Repository }}:${{ github.sha }} .
 
-      - name: Push Image to Docker Hub
-        run: |
-          docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
+      - name: Push Docker Image
+        run: docker push ${{ secrets.Docker_Repository }}:${{ github.sha }}
